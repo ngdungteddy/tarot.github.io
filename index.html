@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bốc Bài Tarot</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f0e6ff;
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        h1 {
+            color: #6a0dad;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        button {
+            background-color: #6a0dad;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #4a0080;
+        }
+        #result {
+            font-size: 18px;
+            font-weight: bold;
+            margin-top: 20px;
+            color: #4a0080;
+        }
+        #card-image {
+            max-width: 300px;
+            margin: 20px auto;
+            display: block;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            border-radius: 10px;
+        }
+        #meaning {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-top: 20px;
+        }
+        #meaning h3 {
+            color: #6a0dad;
+            margin-top: 0;
+        }
+        #loading {
+            text-align: center;
+            color: #6a0dad;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <h1>Bốc Bài Tarot</h1>
+    <button onclick="drawCard()">Rút một lá bài</button>
+    <div id="result"></div>
+    <div id="loading">Đang tải hình ảnh...</div>
+    <img id="card-image" src="" alt="Tarot Card" style="display: none;">
+    <div id="meaning"></div>
+
+    <script>
+        const tarotCards = [
+            {name: "Kẻ Khờ", image: "https://www.sacred-texts.com/tarot/pkt/img/ar00.jpg", meaning: "Kẻ Khờ tượng trưng cho sự khởi đầu mới, tinh thần tự do, và sự ngây thơ. Lá bài này gợi ý rằng bạn đang ở điểm bắt đầu của một hành trình mới, đầy tiềm năng và cơ hội. Hãy mở lòng đón nhận những trải nghiệm mới, tin tưởng vào trực giác của mình và đừng sợ hãi khi bước ra khỏi vùng an toàn."},
+            {name: "Nhà Ảo Thuật", image: "https://www.sacred-texts.com/tarot/pkt/img/ar01.jpg", meaning: "Nhà Ảo Thuật đại diện cho sự sáng tạo, kỹ năng, và khả năng biến ý tưởng thành hiện thực. Lá bài này cho thấy bạn có tất cả các công cụ cần thiết để thành công. Đây là thời điểm để tận dụng tài năng và nguồn lực của bạn, tập trung vào mục tiêu và hành động một cách quyết đoán để đạt được ước mơ của mình."},
+            {name: "Nữ Tư Tế", image: "https://www.sacred-texts.com/tarot/pkt/img/ar02.jpg", meaning: "Nữ Tư Tế tượng trưng cho trực giác, sự hiểu biết sâu sắc và bí ẩn. Lá bài này khuyên bạn nên lắng nghe tiếng nói bên trong, tin tưởng vào trực giác của mình và tìm kiếm sự khôn ngoan từ nội tâm. Có thể có những bí mật hoặc thông tin ẩn giấu đang chờ được khám phá. Hãy dành thời gian để suy ngẫm và kết nối với bản thân sâu sắc hơn."},
+            {name: "Nữ Hoàng", image: "https://www.sacred-texts.com/tarot/pkt/img/ar03.jpg", meaning: "Nữ Hoàng đại diện cho sự phong phú, sáng tạo và nuôi dưỡng. Lá bài này gợi ý rằng bạn đang ở trong giai đoạn màu mỡ, đầy sức sống và tiềm năng sáng tạo. Đây là thời điểm tốt để bắt đầu các dự án mới, chăm sóc bản thân và những người xung quanh. Hãy kết nối với thiên nhiên và tận hưởng những niềm vui đơn giản trong cuộc sống."},
+            {name: "Hoàng Đế", image: "https://www.sacred-texts.com/tarot/pkt/img/ar04.jpg", meaning: "Hoàng Đế tượng trưng cho quyền lực, uy quyền và cấu trúc. Lá bài này cho thấy sự cần thiết của trật tự, kỷ luật và lãnh đạo trong cuộc sống của bạn. Đây có thể là thời điểm để thiết lập các quy tắc, tổ chức lại cuộc sống hoặc đảm nhận vai trò lãnh đạo. Hãy sử dụng logic và lý trí để đưa ra quyết định và xây dựng nền tảng vững chắc cho tương lai."},
+            {name: "Giáo Hoàng", image: "https://www.sacred-texts.com/tarot/pkt/img/ar05.jpg", meaning: "Giáo Hoàng đại diện cho truyền thống, tâm linh và giáo dục. Lá bài này gợi ý rằng bạn nên tìm kiếm sự hướng dẫn từ một người thầy hoặc cố vấn đáng tin cậy. Đây cũng là thời điểm để khám phá niềm tin tâm linh của bạn, học hỏi từ truyền thống và áp dụng những bài học đạo đức vào cuộc sống hàng ngày. Hãy mở lòng đón nhận sự khôn ngoan từ những nguồn truyền thống và tinh thần."},
+            {name: "Người Yêu", image: "https://www.sacred-texts.com/tarot/pkt/img/ar06.jpg", meaning: "Người Yêu tượng trưng cho tình yêu, sự hòa hợp và lựa chọn. Lá bài này cho thấy bạn đang ở trong giai đoạn tìm kiếm sự hòa hợp và sự lựa chọn trong mối quan hệ. Đây có thể là thời điểm để xem xét các mối quan hệ hiện tại, đánh giá các lựa chọn và quyết định xem bạn muốn tiếp tục theo đuổi chúng hay không. Hãy mở lòng và tìm kiếm sự hòa hợp và tình yêu thực sự."},
+            {name: "Cỗ Xe", image: "https://www.sacred-texts.com/tarot/pkt/img/ar07.jpg", meaning: "Cỗ Xe tượng trưng cho kiểm soát, ý chí và chiến thắng. Lá bài này cho thấy bạn đang ở trong giai đoạn kiểm soát cuộc sống của mình, tập trung vào mục tiêu và hành động một cách quyết đoán để đạt được thành công. Đây có thể là thời điểm để thực hiện kế hoạch, đưa ra quyết định quan trọng và tiến lên trên con đường thành công. Hãy tin tưởng vào khả năng của mình và không ngừng hành động."},
+            {name: "Sức Mạnh", image: "https://www.sacred-texts.com/tarot/pkt/img/ar08.jpg", meaning: "Sức Mạnh tượng trưng cho dũng cảm, kiên nhẫn và sức mạnh nội tâm. Lá bài này cho thấy bạn đang ở trong giai đoạn mạnh mẽ, vượt qua thử thách và tìm kiếm sự an ổn trong cuộc sống. Đây có thể là thời điểm để đứng lên và đối mặt với những thách thức, tin tưởng vào khả năng của mình và tiến lên trên con đường thành công. Hãy tin tưởng vào sức mạnh của nội tâm và không ngừng hành động."},
+            {name: "Ẩn Sĩ", image: "https://www.sacred-texts.com/tarot/pkt/img/ar09.jpg", meaning: "Ẩn Sĩ tượng trưng cho nội tâm, sự cô độc và hướng dẫn. Lá bài này cho thấy bạn đang ở trong giai đoạn tìm kiếm sự hiểu biết sâu sắc về bản thân và tìm kiếm sự hướng dẫn từ nội tâm. Đây có thể là thời điểm để suy ngẫm, tìm kiếm sự độc lập và kết nối với bản thân sâu sắc hơn. Hãy lắng nghe tiếng nói bên trong, tin tưởng vào trực giác của mình và tìm kiếm sự hướng dẫn từ nội tâm."},
+            {name: "Bánh Xe Quay", image: "https://www.sacred-texts.com/tarot/pkt/img/ar10.jpg", meaning: "Bánh Xe Quay tượng trưng cho vận mệnh, chu kỳ và thay đổi. Lá bài này cho thấy bạn đang ở trong giai đoạn thay đổi, điều hòa và tìm kiếm sự cân bằng trong cuộc sống. Đây có thể là thời điểm để đánh giá cuộc đời, tìm kiếm sự thay đổi và tập trung vào những gì quan trọng nhất. Hãy mở lòng và chấp nhận những thay đổi, điều hòa và tìm kiếm sự cân bằng trong cuộc sống."},
+            {name: "Công Lý", image: "https://www.sacred-texts.com/tarot/pkt/img/ar11.jpg", meaning: "Công Lý tượng trưng cho công bằng, sự thật và luật pháp. Lá bài này cho thấy bạn đang ở trong giai đoạn tìm kiếm sự công bằng, sự thật và tín nhiệm trong cuộc sống. Đây có thể là thời điểm để đánh giá các mối quan hệ, đưa ra quyết định công bằng và tìm kiếm sự thật. Hãy mở lòng và tìm kiếm sự công bằng, sự thật và tín nhiệm trong cuộc sống."},
+            {name: "Người Treo Cổ", image: "https://www.sacred-texts.com/tarot/pkt/img/ar12.jpg", meaning: "Người Treo Cổ tượng trưng cho hy sinh, buông bỏ và quan điểm mới. Lá bài này cho thấy bạn đang ở trong giai đoạn hy sinh, buông bỏ và tìm kiếm quan điểm mới. Đây có thể là thời điểm để đánh giá cuộc sống hiện tại, tìm kiếm sự thay đổi và tìm kiếm quan điểm mới. Hãy mở lòng và chấp nhận những thay đổi, buông bỏ và tìm kiếm quan điểm mới trong cuộc sống."},
+            {name: "Thần Chết", image: "https://www.sacred-texts.com/tarot/pkt/img/ar13.jpg", meaning: "Thần Chết tượng trưng cho kết thúc, thay đổi và sự chuyển đổi. Lá bài này cho thấy bạn đang ở trong giai đoạn kết thúc, thay đổi và tìm kiếm sự chuyển đổi. Đây có thể là thời điểm để đánh giá cuộc sống hiện tại, tìm kiếm sự thay đổi và tìm kiếm sự chuyển đổi. Hãy mở lòng và chấp nhận những thay đổi, kết thúc và tìm kiếm sự chuyển đổi trong cuộc sống."},
+            {name: "Tiết Độ", image: "https://www.sacred-texts.com/tarot/pkt/img/ar14.jpg", meaning: "Tiết Độ tượng trưng cho cân bằng, điều độ và hài hòa. Lá bài này cho thấy bạn đang ở trong giai đoạn tìm kiếm sự cân bằng, điều độ và hài hòa trong cuộc sống. Đây có thể là thời điểm để đánh giá cuộc sống hiện tại, tìm kiếm sự cân bằng và tìm kiếm sự hài hòa. Hãy mở lòng và tìm kiếm sự cân bằng, điều độ và hài hòa trong cuộc sống."},
+            {name: "Ác Quỷ", image: "https://www.sacred-texts.com/tarot/pkt/img/ar15.jpg", meaning: "Ác Quỷ tượng trưng cho cám dỗ, ràng buộc và bóng tối. Lá bài này cho thấy bạn đang ở trong giai đoạn gặp phải các thử thách, ràng buộc và bóng tối. Đây có thể là thời điểm để đánh giá cuộc sống hiện tại, tìm kiếm sự thay đổi và tìm kiếm sự giải phóng. Hãy mở lòng và tìm kiếm sự giải phóng, thoát khỏi các ràng buộc và tìm kiếm sự sáng tỏ trong cuộc sống."},
+            {name: "Tháp", image: "https://www.sacred-texts.com/tarot/pkt/img/ar16.jpg", meaning: "Tháp tượng trưng cho sự phá hủy đột ngột, khủng hoảng và giải phóng. Lá bài này cho thấy bạn đang ở trong giai đoạn gặp phải sự phá hủy đột ngột, khủng hoảng và tìm kiếm sự giải phóng. Đây có thể là thời điểm để đánh giá cuộc sống hiện tại, tìm kiếm sự thay đổi và tìm kiếm sự giải phóng. Hãy mở lòng và tìm kiếm sự giải phóng, thoát khỏi sự phá hủy và tìm kiếm sự sáng tỏ trong cuộc sống."},
+            {name: "Ngôi Sao", image: "https://www.sacred-texts.com/tarot/pkt/img/ar17.jpg", meaning: "Ngôi Sao tượng trưng cho hy vọng, cảm hứng và sự đổi mới. Lá bài này cho thấy bạn đang ở trong giai đoạn tìm kiếm hy vọng, cảm hứng và sự đổi mới. Đây có thể là thời điểm để đánh giá cuộc sống hiện tại, tìm kiếm sự thay đổi và tìm kiếm sự đổi mới. Hãy mở lòng và tìm kiếm hy vọng, cảm hứng và sự đổi mới trong cuộc sống."},
+            {name: "Mặt Trăng", image: "https://www.sacred-texts.com/tarot/pkt/img/ar18.jpg", meaning: "Mặt Trăng tượng trưng cho ảo tưởng, sợ hãi và tiềm thức. Lá bài này cho thấy bạn đang ở trong giai đoạn gặp phải ảo tưởng, sợ hãi và tìm kiếm sự hiểu biết sâu sắc hơn về bản thân. Đây có thể là thời điểm để đánh giá cuộc sống hiện tại, tìm kiếm sự thay đổi và tìm kiếm sự hiểu biết sâu sắc hơn về bản thân. Hãy mở lòng và tìm kiếm sự hiểu biết sâu sắc hơn về bản thân trong cuộc sống."},
+            {name: "Mặt Trời", image: "https://www.sacred-texts.com/tarot/pkt/img/ar19.jpg", meaning: "Mặt Trời tượng trưng cho hạnh phúc, thành công và sự sáng tỏ. Lá bài này cho thấy bạn đang ở trong giai đoạn tìm kiếm hạnh phúc, thành công và sự sáng tỏ. Đây có thể là thời điểm để đánh giá cuộc sống hiện tại, tìm kiếm sự thay đổi và tìm kiếm sự sáng tỏ trong cuộc sống. Hãy mở lòng và tìm kiếm hạnh phúc, thành công và sự sáng tỏ trong cuộc sống."},
+            {name: "Phán Xét", image: "https://www.sacred-texts.com/tarot/pkt/img/ar20.jpg", meaning: "Phán Xét tượng trưng cho tái sinh, gọi mời và thức tỉnh. Lá bài này cho thấy bạn đang ở trong giai đoạn tái sinh, gọi mời và tìm kiếm sự thức tỉnh. Đây có thể là thời điểm để đánh giá cuộc sống hiện tại, tìm kiếm sự thay đổi và tìm kiếm sự thức tỉnh. Hãy mở lòng và tìm kiếm sự thức tỉnh, tái sinh và gọi mời trong cuộc sống."},
+            {name: "Thế Giới", image: "https://www.sacred-texts.com/tarot/pkt/img/ar21.jpg", meaning: "Thế Giới tượng trưng cho sự hoàn thành, thành công và hài hòa toàn cầu. Lá bài này cho thấy bạn đang ở trong giai đoạn hoàn thành, thành công và tìm kiếm sự hài hòa toàn cầu. Đây có thể là thời điểm để đánh giá cuộc sống hiện tại, tìm kiếm sự thay đổi và tìm kiếm sự hài hòa toàn cầu. Hãy mở lòng và tìm kiếm sự hoàn thành, thành công và hài hòa toàn cầu trong cuộc sống."}
+        ];
+
+        function drawCard() {
+            const randomIndex = Math.floor(Math.random() * tarotCards.length);
+            const card = tarotCards[randomIndex];
+            document.getElementById("result").innerHTML = `Bạn đã rút được lá bài: ${card.name}`;
+            document.getElementById("meaning").innerHTML = `<h3>Ý nghĩa:</h3><p>${card.meaning}</p>`;
+            
+            const cardImage = document.getElementById("card-image");
+            const loading = document.getElementById("loading");
+            
+            loading.style.display = "block";
+            cardImage.style.display = "none";
+            
+            cardImage.onload = function() {
+                cardImage.style.display = "block";
+                loading.style.display = "none";
+            };
+            cardImage.onerror = function() {
+                loading.innerHTML = "Không thể tải hình ảnh. Vui lòng thử lại.";
+            };
+            cardImage.src = card.image;
+        }
+
+        // Preload tất cả hình ảnh khi trang web được tải
+        window.onload = function() {
+            tarotCards.forEach(card => {
+                const img = new Image();
+                img.src = card.image;
+            });
+        }
+    </script>
+</body>
+</html>
