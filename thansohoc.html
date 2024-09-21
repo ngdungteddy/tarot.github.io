@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thần Số Học Vũ Trụ</title>
+    <style>
+        body, html {
+            height: 100%;
+            margin: 0;
+            font-family: 'Arial', sans-serif;
+            color: #fff;
+            background: #000 url('https://images.unsplash.com/photo-1632852702313-f49135ab8c94?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D') no-repeat center center fixed;
+            background-size: cover;
+            overflow-x: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .stars {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+        .star {
+            position: absolute;
+            background: #b19cd9;
+            border-radius: 50%;
+            animation: twinkle 5s infinite;
+        }
+        @keyframes twinkle {
+            0% { opacity: 0; }
+            50% { opacity: 1; }
+            100% { opacity: 0; }
+        }
+        .container {
+            width: 90%;
+            max-width: 800px;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 15px;
+            box-shadow: 0 0 20px rgba(177, 156, 217, 0.3);
+            margin-top: 60px;
+        }
+        h1, h2 {
+            text-align: center;
+            color: #b19cd9;
+            text-shadow: 0 0 10px #b19cd9;
+        }
+        input, button {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: none;
+            border-radius: 5px;
+            background: rgba(177, 156, 217, 0.1);
+            color: #fff;
+            font-size: 16px;
+        }
+        button {
+            background: #b19cd9;
+            color: #000;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        button:hover {
+            background: #fff;
+            box-shadow: 0 0 15px #b19cd9;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(177, 156, 217, 0.1);
+            border-radius: 10px;
+            text-align: center;
+        }
+        .section {
+            margin-bottom: 40px;
+            border-bottom: 1px solid #b19cd9;
+            padding-bottom: 20px;
+        }
+        /* Thêm CSS cho navbar */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 10px 0;
+            z-index: 1000;
+        }
+        .navbar ul {
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+            text-align: center;
+        }
+        .navbar li {
+            display: inline-block;
+            margin: 0 15px;
+        }
+        .navbar a {
+            color: #b19cd9;
+            text-decoration: none;
+            font-size: 18px;
+            transition: all 0.3s ease;
+        }
+        .navbar a:hover {
+            color: #fff;
+            text-shadow: 0 0 10px #b19cd9;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <ul>
+            <li><a href="index.html">Trang chủ</a></li>
+            <li><a href="thansohoc.html">Thần Số Học</a></li>
+            <li><a href="tarot.html">Tarot</a></li>
+        </ul>
+    </nav>
+
+    <div class="stars"></div>
+    <div class="container">
+        <h1>Thần Số Học Vũ Trụ</h1>
+        
+        <div class="section">
+            <h2>Tính Số Chủ Đạo</h2>
+            <p>Nhập ngày tháng năm sinh của bạn:</p>
+            <input type="date" id="birthdate">
+            <button onclick="calculateLifePathNumber()">Tính</button>
+            <div id="lifePathResult" class="result"></div>
+        </div>
+
+        <div class="section">
+            <h2>Tính Số Linh Hồn</h2>
+            <p>Nhập họ và tên đầy đủ của bạn:</p>
+            <input type="text" id="fullName" placeholder="Ví dụ: Nguyễn Văn A">
+            <button onclick="calculateSoulNumber()">Tính</button>
+            <div id="soulResult" class="result"></div>
+        </div>
+    </div>
+
+    <script>
+        function calculateLifePathNumber() {
+            const birthdate = document.getElementById('birthdate').value;
+            if (!birthdate) {
+                alert('Vui lòng nhập ngày tháng năm sinh!');
+                return;
+            }
+
+            const dateArray = birthdate.split('-');
+            const year = dateArray[0];
+            const month = dateArray[1];
+            const day = dateArray[2];
+
+            let sum = 0;
+            for (let i = 0; i < year.length; i++) {
+                sum += parseInt(year[i]);
+            }
+            sum += parseInt(month);
+            sum += parseInt(day);
+
+            while (sum > 9 && sum !== 11 && sum !== 22) {
+                let newSum = 0;
+                while (sum > 0) {
+                    newSum += sum % 10;
+                    sum = Math.floor(sum / 10);
+                }
+                sum = newSum;
+            }
+
+            const resultDiv = document.getElementById('lifePathResult');
+            resultDiv.innerHTML = `<h2>Số chủ đạo của bạn là: ${sum}</h2>`;
+            resultDiv.innerHTML += getMeaning(sum);
+        }
+
+        function getMeaning(number) {
+            const meanings = {
+                1: "Người tiên phong, độc lập, sáng tạo",
+                2: "Người hòa giải, nhạy cảm, hợp tác",
+                3: "Người biểu đạt, lạc quan, sáng tạo",
+                4: "Người xây dựng, thực tế, đáng tin cậy",
+                5: "Người tự do, linh hoạt, phiêu lưu",
+                6: "Người nuôi dưỡng, có trách nhiệm, yêu thương",
+                7: "Người phân tích, trí tuệ, tâm linh",
+                8: "Người có quyền lực, tham vọng, thành đạt",
+                9: "Người nhân đạo, lý tưởng, phụng sự",
+                11: "Số chủ đạo 11 - Người có trực giác cao, nhạy cảm, tinh thần lãnh đạo",
+                22: "Số chủ đạo 22 - Người xây dựng vĩ đại, có tầm nhìn, thực tế"
+            };
+            return `<p>${meanings[number]}</p>`;
+        }
+
+        function calculateSoulNumber() {
+            const fullName = document.getElementById('fullName').value.toUpperCase();
+            if (!fullName) {
+                alert('Vui lòng nhập họ và tên đầy đủ!');
+                return;
+            }
+
+            const letterValues = {
+                A: 1, Ă: 1, Â: 1, B: 2, C: 3, D: 4, Đ: 4, E: 5, Ê: 5,
+                G: 7, H: 8, I: 9, K: 11, L: 3, M: 4, N: 5, O: 6, Ô: 6, Ơ: 6,
+                P: 7, Q: 8, R: 9, S: 1, T: 2, U: 3, Ư: 3, V: 4, X: 5, Y: 7
+            };
+
+            let sum = 0;
+            for (let char of fullName) {
+                if (letterValues[char]) {
+                    sum += letterValues[char];
+                }
+            }
+
+            while (sum > 9 && sum !== 11 && sum !== 22) {
+                let newSum = 0;
+                while (sum > 0) {
+                    newSum += sum % 10;
+                    sum = Math.floor(sum / 10);
+                }
+                sum = newSum;
+            }
+
+            const resultDiv = document.getElementById('soulResult');
+            resultDiv.innerHTML = `<h3>Số linh hồn của bạn là: ${sum}</h3>`;
+            resultDiv.innerHTML += getSoulMeaning(sum);
+        }
+
+        function getSoulMeaning(number) {
+            const meanings = {
+                1: "Độc lập, sáng tạo, tự tin",
+                2: "Hòa bình, cân bằng, hợp tác",
+                3: "Biểu đạt, giao tiếp, niềm vui",
+                4: "Ổn định, trật tự, kỷ luật",
+                5: "Tự do, thay đổi, phiêu lưu",
+                6: "Tình yêu, trách nhiệm, hài hòa",
+                7: "Phân tích, tâm linh, trí tuệ",
+                8: "Quyền lực, thành công, vật chất",
+                9: "Nhân đạo, phụng sự, trí tuệ",
+                11: "Trực giác cao, tinh thần lãnh đạo",
+                22: "Xây dựng vĩ đại, tầm nhìn rộng lớn"
+            };
+            return `<p>${meanings[number]}</p>`;
+        }
+
+        // Thêm hiệu ứng sao
+        function createStars() {
+            const starsContainer = document.querySelector('.stars');
+            for (let i = 0; i < 100; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                star.style.width = `${Math.random() * 3}px`;
+                star.style.height = star.style.width;
+                star.style.left = `${Math.random() * 100}%`;
+                star.style.top = `${Math.random() * 100}%`;
+                star.style.animationDelay = `${Math.random() * 5}s`;
+                starsContainer.appendChild(star);
+            }
+        }
+
+        createStars();
+    </script>
+</body>
+</html>
